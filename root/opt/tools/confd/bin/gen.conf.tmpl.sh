@@ -12,11 +12,13 @@ KAFKA_LOG_FILE=${KAFKA_LOG_FILE:-${KAFKA_LOG_DIRS}"/kafkaServer.out"}
 KAFKA_LOG_RETENTION_HOURS=${KAFKA_LOG_RETENTION_HOURS:-"168"}
 KAFKA_NUM_PARTITIONS=${KAFKA_NUM_PARTITIONS:-"1"}
 KAFKA_ZK_SERVICE=${KAFKA_ZK_SERVICE:-"default/zookeeper"}
+KAFKA_ZK_NAMESPACE=$( echo ${KAFKA_ZK_SERVICE} | cut -d"/" -f1 )
+KAFKA_ZK_NAME=$( echo ${KAFKA_ZK_SERVICE} | cut -d"/" -f2 )
 KAFKA_ZK_PORT=${KAFKA_ZK_PORT:-"2181"}
 KAFKA_EXT_IP=${KAFKA_EXT_IP:-""}
 LABEL_ID=".metadata.labels.kafkaid"
 
-if [ "$ADVERTISE_PUB_IP" == "true" ]; then 
+if [ "$ADVERTISE_PUB_IP" == "true" ]; then
     KAFKA_EXT_IP='PLAINTEXT://{{getv "/self/host/agent_ip"}}'
 fi
 
@@ -41,7 +43,7 @@ EOF
 
 cat << EOF > ${SERVICE_VOLUME}/confd/etc/templates/server.properties.tmpl
 ############################# Server Basics #############################
-{{- \$data := json (getv "/pods/${POD_NAMESPACE}/${POD_NAME}") -}}
+{{ \$data := json (getv "/pods/${POD_NAMESPACE}/${POD_NAME}") -}}
 broker.id={{\$data${LABEL_ID}}}
 ############################# Socket Server Settings #############################
 listeners=${KAFKA_LISTENER}
@@ -65,16 +67,13 @@ log.segment.bytes=1073741824
 log.retention.check.interval.ms=300000
 log.cleaner.enable=true
 ############################# Connect Policy #############################
-{{- \$zk_link := split (getenv "KAFKA_ZK_SERVICE") "/" -}}
-{{- \$zk_stack := index \$zk_link 0 -}}
-{{- \$zk_service := index \$zk_link 1 -}} 
-{{- \$data := json (getv (print "/services/endpoints/%s/%s" \$zk_stack \$zk_service)) -}}
+{{ \$data := json (getv "/services/endpoints/${KAFKA_ZK_NAMESPACE}/${KAFKA_ZK_NAME}") -}}
 zookeeper.connect={{- range \$i, \$subset := \$data.subsets -}}
   {{- if \$i -}}
     ,
   {{- end -}}
-  {{ range \$subset.addresses }}
-    {{.ip}} 
+  {{- range \$subset.addresses -}}
+{{.ip}}
     {{- range \$subset.ports -}}
       {{- if eq .name "zk-client" -}}
         :{{.port}}
@@ -82,6 +81,5 @@ zookeeper.connect={{- range \$i, \$subset := \$data.subsets -}}
     {{- end -}}
 {{- end -}}
 {{end}}
-
 zookeeper.connection.timeout.ms=6000
 EOF
