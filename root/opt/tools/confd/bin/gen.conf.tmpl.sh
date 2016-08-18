@@ -69,11 +69,11 @@ log.cleaner.enable=true
 ############################# Connect Policy #############################
 {{ \$data := json (getv "/services/endpoints/${KAFKA_ZK_NAMESPACE}/${KAFKA_ZK_NAME}") -}}
 zookeeper.connect={{- range \$i, \$subset := \$data.subsets -}}
-  {{- if \$i -}}
-    ,
-  {{- end -}}
-  {{- range \$subset.addresses -}}
-{{.ip}}
+  {{- range \$j, \$address := \$subset.addresses -}}
+    {{- if \$j -}}
+      ,
+    {{- end -}}
+    {{\$address.ip}}
     {{- range \$subset.ports -}}
       {{- if eq .name "zk-client" -}}
         :{{.port}}
