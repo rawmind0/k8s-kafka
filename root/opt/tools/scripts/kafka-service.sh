@@ -79,7 +79,7 @@ function releaseLock {
 function newId {
     getLock
 
-    for id in {1..255}; do
+    for id in {1..1024}; do
         for i in $(curl -Ss ${CONF_URL}/services/endpoints/${POD_NAMESPACE}/${RC_NAME} | ${JQ_BIN} .node.value | ${JQ_BIN} .subsets[0].addresses[].targetRef.name) ; do
             g=$(curl -Ss ${CONF_URL}/pods/${POD_NAMESPACE}/${i} | ${JQ_BIN} .node.value | ${JQ_BIN} ${LABEL_ID})
             if [ "X$id" == "X$g" ]; then
