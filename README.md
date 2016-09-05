@@ -13,7 +13,7 @@ docker build -t rawmind/k8s-kafka:<version> .
 
 ## Versions
 
-- `0.10.0.0-3` [(Dockerfile)](https://github.com/rawmind0/k8s-kafka/blob/0.10.0.0-3/README.md)
+- `0.10.0.0-4` [(Dockerfile)](https://github.com/rawmind0/k8s-kafka/blob/0.10.0.0-4/README.md)
 
 
 ## Usage

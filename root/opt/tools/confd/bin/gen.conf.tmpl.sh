@@ -20,14 +20,11 @@ KAFKA_EXT_IP=${KAFKA_EXT_IP:-""}
 LABEL_ID=".metadata.labels.kafkaid"
 
 if [ "$ADVERTISE_PUB_IP" == "true" ]; then
-    KAFKA_EXT_IP='PLAINTEXT://{{getv "/self/host/agent_ip"}}'
-fi
-
-if [ "$KAFKA_EXT_IP" == "" ]; then
-    KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-${KAFKA_LISTENER}}
+    KAFKA_ADVERTISE_IP='{{$data.status.hostIP}}'
 else
-    KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-"PLAINTEXT://"${KAFKA_EXT_IP}":"${KAFKA_ADVERTISE_PORT}}
+    KAFKA_ADVERTISE_IP='{{$data.status.podIP}}'
 fi
+KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-"PLAINTEXT://"${KAFKA_ADVERTISE_IP}":"${KAFKA_ADVERTISE_PORT}}
 
 cat << EOF > ${SERVICE_VOLUME}/confd/etc/conf.d/server.properties.toml
 [template]
