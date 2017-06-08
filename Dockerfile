@@ -1,4 +1,4 @@
-FROM rawmind/k8s-tools:3.5-1
+FROM rawmind/k8s-tools:3.5
 MAINTAINER Raul Sanchez <rawmind@gmail.com>
 
 #Set environment
