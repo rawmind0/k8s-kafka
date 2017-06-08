@@ -14,10 +14,10 @@ function checkNetwork {
     done
 
     log "[ Checking container connectivity... ]"
-    b="`fping -c 1 kubernetes. &> /dev/null; echo $?`"
+    b="`fping -c 1 kubernetes.kubernetes. &> /dev/null; echo $?`"
     while [ $b -eq 1 ]; 
     do
-        b="`fping -c 1 kubernetes. &> /dev/null; echo $?`"
+        b="`fping -c 1 kubernetes.kubernetes. &> /dev/null; echo $?`"
         sleep 1 
     done
 }
